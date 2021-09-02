@@ -18,28 +18,21 @@ module.exports = async msg => {
         const repos = await callRepos(UserName)
         const created = await callUserAccountCreated(UserName)
         const events = await callEvents(UserName, EventListNum)
-
-        let EventList = new String()
-        for (event of events) {
-            EventList += `
-            type: ${event.type}
-            repo: ${event.repo}
-            created at: ${event.created}
-            `
-        }
     
         msg.channel.send(`
-        
-    현재 팔로워 수 : ${follower} / 팔로잉 수 : ${folloing}
-    레파지토리 리스트 : ${repos}
-    
-    계정 생성 일 : ${created}
-    
-    이벤트 : ${EventList}
-        
+        \`\`\`
+현재 팔로워 수 : ${follower} / 팔로잉 수 : ${folloing}
+레파지토리 리스트 : 
+${repos}
+
+계정 생성 일 : ${created}
+
+이벤트의 수 : ${events}
+    \`\`\`
         `)
     } catch (err) {
         console.log(err)
+        msg.channel.send(`ERROR! status: ${err.response.status}`)
     }
 }
 
@@ -49,26 +42,8 @@ async function callEvents(UserName, EventListNum) {
             Authorization: `token ${token}`,
         },
     })
-    let result = [[]]
 
-    let i = 0, j = 0
-    for (data of data.data) {
-        if(j == 10) {
-            i++
-            result.push([])
-            j = 0
-        }
-
-        result[i].push({
-            repo: data.repo.name,
-            type: data.type,
-            created: data.created_at
-        })
-
-        j++
-    }
-
-    return result[EventListNum]
+    return data.data.length
 }
 
 async function callRepos(UserName) {
